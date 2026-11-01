@@ -1,0 +1,8 @@
+text(cells, """
+### What Step 2 tells us
+
+- **Our expectation was mostly right, with an important exception.** 13 of 17 features have skewness above 1. All eight money amount columns and the count columns are strongly right-skewed (skewness from 2.4 for `BALANCE` up to 13.6 for `MINIMUM_PAYMENTS`), with huge excess kurtosis (up to 284), meaning a few very large customers stretch the tail.
+- **The exceptions are the bounded columns.** `PURCHASES_FREQUENCY` (skew 0.06) and `PURCHASES_INSTALLMENTS_FREQUENCY` (0.51) are flat, with piles at 0 and 1, so they are not right-skewed. `BALANCE_FREQUENCY` (-2.0) and `TENURE` (-2.9) are *left*-skewed because most customers sit at the maximum (1.0 and 12 months). A log transform would be the wrong tool for these.
+- **No feature is normal.** Zero of 17 pass both tests. Shapiro-Wilk p-values (on 5,000 sampled rows) are all below 1e-55 and the D'Agostino p-values underflow to 0. Because the skewness and kurtosis are so large, this verdict does not depend on Shapiro being too strict: even a lenient test would reject. Even `PURCHASES_FREQUENCY`, with skewness near 0, fails because its shape is flat, not bell-shaped.
+- **What this means for KMeans.** KMeans does not need normal data. The real problem is scale and extremes: it uses straight-line distance, so a feature in the tens of thousands of dollars would swamp one measured from 0 to 1, and a few giant customers would pull the cluster centres. So we will log-transform the skewed *amount and count* columns (Step 5), leave the bounded 0 to 1 columns alone, and then put everything on one scale.
+""")

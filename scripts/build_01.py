@@ -116,8 +116,16 @@ print(f"{df['TENURE'].value_counts().sort_index().to_dict()=}")
 print(f"{df['CREDIT_LIMIT'].isna().sum()=}, {df['MINIMUM_PAYMENTS'].isna().sum()=}")
 ''')
 
-if "--findings" in sys.argv:
-    exec(Path(__file__).with_name("findings_01.py").read_text())
+
+def maybe(name: str) -> None:
+    """Insert a hand-written interpretation file (written AFTER reading the executed output), if it exists."""
+    path = Path(__file__).with_name(f"{name}.py")
+    if path.exists():
+        exec(path.read_text(), globals())
+
+
+maybe("findings_01")
+exec(Path(__file__).with_name("part2_steps_2_to_4.py").read_text())
 
 save(cells, Path(__file__).parent.parent / "notebooks" / "01_eda.ipynb")
 print("built")
