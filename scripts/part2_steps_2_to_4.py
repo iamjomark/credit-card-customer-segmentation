@@ -33,6 +33,8 @@ step(cells,
      "Together they show the same story as the skewness table, but visually. Bar piles against zero show the many-zeros problem from Step 1.",
      '''
 import matplotlib.pyplot as plt  # imported here because plotting starts in this cell
+# Show plots inside the notebook (importing ydata-profiling earlier switches matplotlib to a no-display mode)
+%matplotlib inline
 import seaborn as sns            # nicer statistical plots on top of matplotlib
 
 FIGURES_DIR = REPORTS_DIR / "figures"
