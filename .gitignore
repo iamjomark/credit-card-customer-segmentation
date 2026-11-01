@@ -1,0 +1,9 @@
+# Data stays out of git (see README for where to get it)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+# Virtual environment and caches
+.venv/
+__pycache__/
+.ipynb_checkpoints/
