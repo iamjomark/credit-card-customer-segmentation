@@ -198,6 +198,8 @@ maybe("findings_03_metrics")
 
 if (HERE / "chosen_k.txt").exists():
     exec((HERE / "part2_03_chosen.py").read_text())
+    if (HERE / "part3_03_profiling.py").exists():
+        exec((HERE / "part3_03_profiling.py").read_text())
 
 save(cells, HERE.parent / "notebooks" / "03_clustering.ipynb")
 print("built")
