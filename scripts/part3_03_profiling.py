@@ -40,7 +40,7 @@ step(cells,
      "Rescaling per feature lets us compare features that have very different units (dollars versus shares). It shows only the *ranking between clusters*, not how large the gap is, so read it together with the tables above.",
      '''
 import matplotlib.pyplot as plt  # imported here because plotting starts in this cell
-import seaborn as sns
+import seaborn as sns  # seaborn draws statistical plots on top of matplotlib
 
 feature_means = profile_data.groupby("cluster").mean()
 # One-liner: (value - column min) / (column max - column min) rescales each feature to 0..1 across clusters

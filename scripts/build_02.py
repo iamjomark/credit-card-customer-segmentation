@@ -37,9 +37,9 @@ step(cells,
      '''
 # Imported here so this step only loads the libraries when it runs
 from pathlib import Path
-import numpy as np
-import pandas as pd
-from sklearn.impute import SimpleImputer
+import numpy as np  # numpy does fast maths on arrays of numbers
+import pandas as pd  # pandas holds and summarises the customer table
+from sklearn.impute import SimpleImputer  # SimpleImputer fills blank values (here with the median)
 
 
 def find_project_root(start: Path = Path.cwd()) -> Path:
@@ -106,7 +106,7 @@ step(cells,
      "Column A should keep the original skew. Look at which option brings the most skewed features close to 0, and how large the biggest z-score stays.",
      "Skewness near 0 means a symmetric shape. A max |z| of 20 means one customer is 20 standard deviations from average, which would drag a KMeans centre. Smaller is calmer.",
      '''
-from sklearn.preprocessing import FunctionTransformer, PowerTransformer, QuantileTransformer, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, PowerTransformer, QuantileTransformer, StandardScaler  # the scalers and transformers we compare in this step
 
 # Option B by hand here, to compare; the real pipeline is built further down
 logged = imputed.copy()
@@ -138,8 +138,8 @@ step(cells,
      "Whether any option is clearly better or worse, keeping in mind these scores come from different spaces.",
      "Silhouette (from -1 to 1, higher means tighter, better-separated clusters) is not fully comparable across different transforms, so we use it only as a sanity check, not as the decision rule. The decision rests on skewness, extremes and interpretability.",
      '''
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
+from sklearn.cluster import KMeans  # KMeans groups customers around k centre points
+from sklearn.metrics import silhouette_score  # silhouette score: how well separated the groups are (-1 to 1)
 
 sanity = {}
 for name, frame in option_frames.items():
@@ -155,7 +155,7 @@ step(cells,
      "This is the visual proof of what the skewness table says: scaling alone does not change the shape, a log transform does.",
      '''
 import matplotlib.pyplot as plt  # imported here because plotting starts in this cell
-import seaborn as sns
+import seaborn as sns  # seaborn draws statistical plots on top of matplotlib
 
 examples = ["MINIMUM_PAYMENTS", "ONEOFF_PURCHASES", "CASH_ADVANCE"]
 fig, axes = plt.subplots(len(examples), 3, figsize=(13, 8))
@@ -178,8 +178,8 @@ step(cells,
      "The output shape (8,950 by 11), column means near 0 and standard deviations near 1.",
      "A Pipeline bundles every step. Fitted once, it can be saved and used on any new customer in exactly the same way: it reuses the training medians, the training scales, and applies the same log. ColumnTransformer sends different columns through different steps.",
      '''
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer  # ColumnTransformer sends different columns through different steps
+from sklearn.pipeline import Pipeline  # Pipeline chains steps so they run the same way on any data
 
 # Branch 1: log1p then z-score, for the skewed money columns
 log_branch = Pipeline([
@@ -249,7 +249,7 @@ step(cells,
      "How quickly the bars shrink, and how many components reach 80% and 90% of the variance.",
      "*Explained variance* is the share of the total spread in the data that one component captures. If a few components capture most of it, the data has simple structure. If it needs many, the information is spread over many features.",
      '''
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA  # PCA squeezes the 11 features into a few components for viewing
 
 pca = PCA(random_state=0).fit(scaled)  # keep all 11 components for now
 explained = pca.explained_variance_ratio_

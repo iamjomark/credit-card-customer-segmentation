@@ -28,7 +28,7 @@ step(cells,
      '''
 # Imported here so this step only loads the library when it runs
 from pathlib import Path
-import pandas as pd
+import pandas as pd  # pandas holds and summarises the customer table
 
 
 def find_project_root(start: Path = Path.cwd()) -> Path:

@@ -9,5 +9,5 @@ text(cells, """
 - They describe **the clusters KMeans produced** and **what the surrogate learned about them**. They are not a ground truth about why customers behave as they do, and they do not show cause and effect.
 - **Fidelity:** the surrogate matches KMeans on 95.0% of unseen customers. For the other 5%, the explanations may describe a different cluster than the one the customer is actually in.
 - **Correlated features** (for example purchase frequency and installment purchases) can share credit with each other in SHAP and hide each other in permutation importance, so single-feature rankings should not be over-read.
-- The explanations rely on the feature set, the transform, and the choice of k=6 made earlier. If any of them changed, the explanations would change too (the Yeo-Johnson check in notebook 03 showed the boundaries are not perfectly fixed).
+- The explanations rely on the feature set, the transform, and the choice of k=6 made earlier. If any of them changed, the explanations would change too (in notebook 03, between 3% and 17% of customers changed group under the alternative preprocessing choices we tried, the largest effect coming from reshaping the bounded columns).
 """)

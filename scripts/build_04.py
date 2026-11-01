@@ -38,11 +38,11 @@ step(cells,
      '''
 # Imported here so this step only loads the libraries when it runs
 import json
-from pathlib import Path
+from pathlib import Path  # Path builds file locations that work on any operating system
 
-import joblib
-import numpy as np
-import pandas as pd
+import joblib  # joblib loads the saved model and pipeline from disk
+import numpy as np  # numpy does fast maths on arrays of numbers
+import pandas as pd  # pandas holds and summarises the customer table
 
 
 def find_project_root(start: Path = Path.cwd()) -> Path:
@@ -80,9 +80,9 @@ step(cells,
      "Accuracy far above the 'always guess the biggest cluster' baseline (26.9%), and which clusters have lower recall (the share of that cluster's customers the model found).",
      "High accuracy means the clusters are easy to describe with the features, so explanations based on the surrogate are trustworthy. Low accuracy would be a warning: the explanations would be describing something the surrogate itself cannot reproduce.",
      '''
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
-from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+from sklearn.ensemble import RandomForestClassifier  # the surrogate model that learns to predict the cluster
+from sklearn.metrics import classification_report  # per-cluster precision and recall
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split  # splitting and cross-validation tools
 
 X_train, X_test, y_train, y_test = train_test_split(
     original_units, labels, test_size=0.25, stratify=labels, random_state=RANDOM_STATE)
@@ -106,8 +106,8 @@ step(cells,
      "Rows are the true cluster, columns what the surrogate predicted. Confusion between two clusters means they sit next to each other in feature space, which agrees with the touching clouds we saw in PCA.",
      '''
 import matplotlib.pyplot as plt  # imported here because plotting starts in this cell
-import seaborn as sns
-from sklearn.metrics import confusion_matrix
+import seaborn as sns  # seaborn draws statistical plots on top of matplotlib
+from sklearn.metrics import confusion_matrix  # counts which clusters the surrogate mixes up
 
 matrix = confusion_matrix(y_test, surrogate.predict(X_test), normalize="true")  # each row sums to 1
 short_names = [f"{c}: {cluster_names[c][:22]}" for c in sorted(cluster_names)]
@@ -265,8 +265,8 @@ step(cells,
      "Whether the order of features is broadly the same in both columns, and the rank correlation at the bottom.",
      "If two quite different methods give a similar ranking, we can trust the ranking more. Differences are worth a closer look, often because of correlated features.",
      '''
-from scipy.stats import spearmanr
-from sklearn.inspection import permutation_importance
+from scipy.stats import spearmanr  # rank correlation to compare two importance rankings
+from sklearn.inspection import permutation_importance  # shuffles one feature at a time to see how much accuracy drops
 
 permutation = permutation_importance(surrogate, X_test, y_test, n_repeats=10, random_state=RANDOM_STATE, scoring="accuracy", n_jobs=-1)
 importance_table = pd.DataFrame({

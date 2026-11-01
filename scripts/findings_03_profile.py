@@ -22,7 +22,7 @@ step(cells,
      "The printed dictionary of names.",
      "Names are saved next to the data so notebook 04 uses exactly the same words. The profile tables go to reports/ for the write-up.",
      '''
-import json
+import json  # json saves and reads the cluster names as a small text file
 
 cluster_names = {
     0: "Newer customers, small limit, mixed use",

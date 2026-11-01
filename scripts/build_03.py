@@ -34,8 +34,8 @@ step(cells,
      '''
 # Imported here so this step only loads the libraries when it runs
 from pathlib import Path
-import numpy as np
-import pandas as pd
+import numpy as np  # numpy does fast maths on arrays of numbers
+import pandas as pd  # pandas holds and summarises the customer table
 
 
 def find_project_root(start: Path = Path.cwd()) -> Path:
@@ -70,8 +70,8 @@ step(cells,
      "How each column changes with k. Note where silhouette peaks, where Davies-Bouldin is lowest and where Calinski-Harabasz peaks.",
      "The measures often disagree. When they do, we weigh them together with how useful the segments are for the business, rather than trusting one number.",
      '''
-from sklearn.cluster import KMeans
-from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score, silhouette_score
+from sklearn.cluster import KMeans  # KMeans groups customers around k centre points
+from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score, silhouette_score  # the three internal quality measures for clusters
 
 kmeans_rows = []
 kmeans_labels = {}  # keep the labels for later use
@@ -132,7 +132,7 @@ step(cells,
      "A high mean ARI (above about 0.8 is solid, below 0.6 is shaky) and a small spread.",
      "High stability means the same groups keep appearing when the customers change slightly, so they are not a fluke. A sharp drop at some k suggests the data does not really support that many groups.",
      '''
-from sklearn.metrics import adjusted_rand_score
+from sklearn.metrics import adjusted_rand_score  # Adjusted Rand Index: how much two groupings agree
 
 N_BOOTSTRAPS = 30
 random_generator = np.random.default_rng(RANDOM_STATE)  # the modern way to get repeatable randomness
@@ -164,8 +164,8 @@ step(cells,
      "Whether either method beats KMeans at the same k on silhouette, Davies-Bouldin and Calinski-Harabasz.",
      "If a different method gives a similar score, the structure is a property of the data, not of KMeans. If it is clearly better, we should think about switching.",
      '''
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.mixture import GaussianMixture
+from sklearn.cluster import AgglomerativeClustering  # second method to compare: merges the closest groups step by step
+from sklearn.mixture import GaussianMixture  # third method to compare: a mix of bell-shaped clouds (GMM)
 
 comparison_rows = []
 gmm_bic = {}

@@ -20,13 +20,14 @@ In notebooks 01 and 02 we made three choices that we said we would test. For eac
 
 step(cells,
      "Rebuilds the data three alternative ways, refits KMeans for the chosen k and the runner-up k, and compares each result with the main grouping.",
-     "ARI values near 1 (the answer barely changes) versus values below about 0.7 (the answer depends on our choice).",
+     "ARI values near 1 (the answer barely changes) versus values below about 0.7, and the '% moved' columns, which say directly what share of customers end up in a different group.",
      "If the groups survive these changes, they are a property of the customers and not of one preprocessing decision. If a choice changes them a lot, we must say so in the limitations.",
      '''
-import joblib
-from sklearn.base import clone
-from sklearn.metrics import adjusted_rand_score
-from sklearn.preprocessing import PowerTransformer
+import joblib  # imported here to load the saved preprocessing pipeline from notebook 02
+from scipy.optimize import linear_sum_assignment  # imported here to match old and new cluster numbers fairly
+from sklearn.base import clone  # imported here to refit the same recipe on changed data
+from sklearn.metrics import adjusted_rand_score  # imported here to measure agreement between two groupings
+from sklearn.preprocessing import PowerTransformer, StandardScaler  # imported here for the Yeo-Johnson variants
 
 raw = pd.read_csv(ROOT / "data" / "raw" / "credit_card.csv").set_index("CUST_ID")
 saved_pipeline = joblib.load(PROCESSED_DIR / "preprocessing_pipeline.joblib")
@@ -38,13 +39,32 @@ no_payment_blank = raw_zero_fill["MINIMUM_PAYMENTS"].isna() & (raw_zero_fill["PA
 raw_zero_fill.loc[no_payment_blank, "MINIMUM_PAYMENTS"] = 0
 print(f"{no_payment_blank.sum()=} customers filled with 0")
 
+# The seven skewed money columns that Option B logs (list from notebook 02); the other four are bounded
+log_features = ["BALANCE", "ONEOFF_PURCHASES", "INSTALLMENTS_PURCHASES", "CASH_ADVANCE", "CREDIT_LIMIT", "PAYMENTS", "MINIMUM_PAYMENTS"]
+plain_features = [name for name in scaled.columns if name not in log_features]
+
+# Like-for-like Yeo-Johnson: replaces log1p on the SAME seven columns, and leaves the four bounded columns with plain scaling
+yeo_johnson_money_only = pd.concat([
+    pd.DataFrame(PowerTransformer(method="yeo-johnson").fit_transform(imputed_original[log_features]), columns=log_features, index=scaled.index),
+    pd.DataFrame(StandardScaler().fit_transform(imputed_original[plain_features]), columns=plain_features, index=scaled.index),
+], axis=1)[scaled.columns]
+
 variants = {
     "Drop MINIMUM_PAYMENTS": scaled.drop(columns="MINIMUM_PAYMENTS"),
     "Zero-fill MINIMUM_PAYMENTS": clone(saved_pipeline).fit_transform(raw_zero_fill),  # same recipe, refit on changed data
-    "Yeo-Johnson instead of log1p": pd.DataFrame(
+    "Yeo-Johnson instead of log1p (same 7 columns)": yeo_johnson_money_only,
+    "Yeo-Johnson on all 11 columns": pd.DataFrame(
         PowerTransformer(method="yeo-johnson").fit_transform(imputed_original[scaled.columns]),
         columns=scaled.columns, index=scaled.index),
 }
+
+
+def share_reassigned(main_labels, new_labels) -> float:
+    """Share of customers whose group changes after matching the new cluster numbers to the old ones as well as possible."""
+    overlap = pd.crosstab(main_labels, new_labels).values            # how many customers each old/new pair share
+    old_index, new_index = linear_sum_assignment(-overlap)           # best one-to-one matching (minus sign: maximise overlap)
+    return 1 - overlap[old_index, new_index].sum() / overlap.sum()   # everyone not in a matched pair has moved
+
 
 sensitivity_rows = []
 for variant_name, variant_data in variants.items():
@@ -52,6 +72,7 @@ for variant_name, variant_data in variants.items():
     for k in (CHOSEN_K, RUNNER_UP_K):
         variant_labels = KMeans(n_clusters=k, n_init=10, random_state=RANDOM_STATE).fit_predict(variant_data)
         row[f"ARI at k={k}"] = adjusted_rand_score(kmeans_labels[k], variant_labels)  # vs the main grouping at the same k
+        row[f"% moved at k={k}"] = share_reassigned(kmeans_labels[k], variant_labels) * 100  # share of customers who change group
     sensitivity_rows.append(row)
 pd.DataFrame(sensitivity_rows).set_index("variant").round(3)
 ''')

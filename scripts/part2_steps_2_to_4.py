@@ -190,8 +190,8 @@ step(cells,
      "Zero missing values after transform, and the learned medians. The new row should get the same median as the training data.",
      "A Pipeline remembers what it learned (here, the medians) when fitted. Calling transform later on new customers fills blanks using the training medians, never the new data's own, which avoids data leakage (information from outside the training data sneaking in). Notebook 02 reuses this inside the full preprocessing pipeline.",
      '''
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer  # SimpleImputer fills blank values (here with the median)
+from sklearn.pipeline import Pipeline  # Pipeline chains steps so they run the same way on any data
 
 imputation_pipeline = Pipeline([("median_imputer", SimpleImputer(strategy="median"))]).set_output(transform="pandas")
 imputed = imputation_pipeline.fit_transform(df[features])  # learn medians, then fill blanks
